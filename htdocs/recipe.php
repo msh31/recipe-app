@@ -1,12 +1,15 @@
 <?php
+echo "<pre>";
+print_r($_GET);
+echo "</pre>";
 //maak de PDO-connectie beschikbaar in dit bestand
 require "db/dbconnection.class.php";
 
 //maak een nieuwe connectie aan in de variabele $dbconnect
 $dbconnect = new dbconnection();
-
+$recipe_id = $_GET["id"];
 //op de volgende regel bouw je een sql-query (leren we in module 10); als je alle producten uit de tabel met de naam ‘product’ wilt trekken heb je de volgende query nodig
-$sql = "SELECT id, recipe_name, number_for FROM recipes";
+$sql = "SELECT * FROM recipes JOIN ingredients ON recipes.id = recipe_id WHERE recipe_id = $recipe_id";
 
 //hier zet je de query klaar, ‘prepare()’ is een functie binnen PDO die je kunt gebruiken bij de variabele $dbconnect
 $query = $dbconnect -> prepare($sql);
@@ -20,9 +23,9 @@ $query -> execute();
 $recset = $query -> fetchAll(PDO::FETCH_ASSOC);
 
 //om te zien wat je nu precies uit de database gehaald hebt:
-echo "<pre>";
+/*echo "<pre>";
 print_r($recset);
-echo "</pre>";
+echo "</pre>";*/
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,11 +38,15 @@ echo "</pre>";
     <body>
         <div class="container">
     <a href='index2.php'>link naar formulier</a>
-    <h1>Alle recepten</h1>
+    <h1>Recept voor <?php echo $recset[0]['recipe_name'] ?></h1>
+    <h5>
+    <?php echo $recset[0]['preparation'] ?>
+    </h5>
     <table class="table table-sm">
       <tr>
-        <th>naam recept</th>
-        <th>voor hoeveel personen</th>
+        <th>naam ingredient</th>
+        <th>hoeveelheid</th>
+        <th>eenheid</th>
       </tr>
       <?php
     //hier komt per tabelrij een record uit de database
@@ -47,10 +54,9 @@ echo "</pre>";
     //$recset-array: elk record komt 1 voor 1 aan de beurt
     foreach ($recset as $record) {
       echo "<tr>
-        <td>".$record['recipe_name']."</td>
-        <td>{$record['number_for']}</td>
-        <td><a href='edit.php?id={$record['id']}'>edit</a></td>
-        <td><a href='recipe.php?id={$record['id']}'>details</a></td>
+        <td>".$record['ingred_name']."</td>
+        <td>{$record['amount']}</td>
+        <td>{$record['unit']}</td>
       </tr>";
     }
       ?>

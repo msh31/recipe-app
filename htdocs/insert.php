@@ -1,4 +1,8 @@
 <?php
+/* echo "<pre>";
+print_r($_POST);
+echo "</pre>";
+exit(0);*/
 require "db/dbconnection.class.php";
 $dbconnect = new dbconnection();
 //kijken of er submit is geplaatst
