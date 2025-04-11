@@ -1,7 +1,7 @@
 <?php
-echo "<pre>";
-print_r($_GET);
-echo "</pre>";
+//echo "<pre>";
+//print_r($_GET);
+//echo "</pre>";
 //maak de PDO-connectie beschikbaar in dit bestand
 require "db/dbconnection.class.php";
 
@@ -38,10 +38,14 @@ echo "</pre>";*/
     <body>
         <div class="container">
     <a href='index2.php'>link naar formulier</a>
-    <h1>Recept voor <?php echo $recset[0]['recipe_name'] ?></h1>
+    <h1>Recept voor <?= $recset[0]['recipe_name'] ?></h1>
     <h5>
-    <?php echo $recset[0]['preparation'] ?>
+    <?= $recset[0]['preparation'] ?>
     </h5>
+    <div class="row">
+      <div class="col-1"><input id="amount_for" name="amount_for" class="form-control" value="<?= $recset[0]['number_for'] ?>" onchange="changeIngred()"></div>
+      <div class="col-1"><h5>personen</h5></div>
+    </div>
     <table class="table table-sm">
       <tr>
         <th>naam ingredient</th>
@@ -49,19 +53,22 @@ echo "</pre>";*/
         <th>eenheid</th>
       </tr>
       <?php
+      $counter = 1;
     //hier komt per tabelrij een record uit de database
     //$recset is een array met records; via de foreach-constructie doorloop je
     //$recset-array: elk record komt 1 voor 1 aan de beurt
     foreach ($recset as $record) {
       echo "<tr>
         <td>".$record['ingred_name']."</td>
-        <td>{$record['amount']}</td>
+        <td class='amount'>{$record['amount']}</td>
         <td>{$record['unit']}</td>
       </tr>";
+      $counter++;
     }
       ?>
     </table>
     </div>
+    <script src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>
