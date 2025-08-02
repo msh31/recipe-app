@@ -1,18 +1,41 @@
 <?php
-//eerste de benodigde data ophalen uit de database
 require "db/dbconnection.class.php";
 $dbconnect = new dbconnection();
-//ik wil nu alleen de gegevens hebben van het recept met de id die in de URL staat
-//die id kan ik oppikken met $_GET
 $id = $_GET['id'];
-$sql = "SELECT * FROM recipes WHERE id = $id";
+
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+if (isset($_POST['update'])) {
+    $recipe_name = $_POST['recipe_name'];
+    $number_for = $_POST['number_for'];
+    $preparation = $_POST['preparation'];
+    $recipe_id = $_POST['id'];
+    
+    $sql = "UPDATE recipes SET recipe_name = ?, number_for = ?, preparation = ? WHERE id = ?";
+    $query = $dbconnect->prepare($sql);
+    
+    if ($query->execute([$recipe_name, $number_for, $preparation, $recipe_id])) {
+        header("Location: recipe.php?id=" . $recipe_id);
+        exit();
+    } else {
+        $error = "Er is een fout opgetreden bij het bijwerken van het recept.";
+    }
+}
+
+$sql = "SELECT * FROM recipes WHERE id = ?";
 $query = $dbconnect->prepare($sql);
-$query->execute();
+$query->execute([$id]);
 $recset = $query->fetchAll(PDO::FETCH_ASSOC);
-echo "<pre>";
-print_r($recset);
-echo "</pre>";
+
+if (empty($recset)) {
+    header("Location: index.php");
+    exit();
+}
 ?>
+
 <!doctype html>
 <html lang="en">
 
@@ -26,18 +49,35 @@ echo "</pre>";
 
 <body>
     <div class="container">
-    <form>
+        <h1 class="mt-4 mb-4">Recept bewerken</h1>
+        
+        <?php if (isset($error)): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+        
+    <form method="POST" action="">
+        <input type="hidden" name="id" value="<?php echo $recset[0]['id'] ?>">
+        
         <div class="mb-3">
-            <label for="name" class="form-label">Receptnaam</label>
-            <input type="text" class="form-control" id="name" value="<?php echo $recset[0]['recipe_name'] ?>">
+            <label for="recipe_name" class="form-label">Receptnaam</label>
+            <input type="text" class="form-control" id="recipe_name" name="recipe_name" value="<?php echo htmlspecialchars($recset[0]['recipe_name']) ?>" required>
         </div>
+        
         <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+            <label for="number_for" class="form-label">Aantal personen</label>
+            <input type="number" class="form-control" id="number_for" name="number_for" value="<?php echo $recset[0]['number_for'] ?>" min="1" required>
         </div>
+        
         <div class="mb-3">
-            <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            <label for="preparation" class="form-label">Bereiding</label>
+            <textarea class="form-control" id="preparation" name="preparation" rows="5" required><?php echo htmlspecialchars($recset[0]['preparation']) ?></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <button type="submit" name="update" class="btn btn-primary">Recept bijwerken</button>
+            <a href="index.php" class="btn btn-secondary">Annuleren</a>
         </div>
     </form>
     </div>
