@@ -1,14 +1,13 @@
 services:
-  
   apache:
     container_name: recipe-app
     build: .
     depends_on:
       - db
     volumes:
-      - .:/var/www/html/
+      - ./src:/var/www/html
     ports:
-      - 8004:80
+      - "8004:80"
 
   db:
     container_name: recipe-app-db
